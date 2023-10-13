@@ -1,1 +1,3 @@
-print("Hello world")
+# елементарний Hello World!
+
+print("Hello World!")
