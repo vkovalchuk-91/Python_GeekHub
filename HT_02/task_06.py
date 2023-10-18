@@ -2,7 +2,7 @@
 #     e.g. [1, 2, 'u', 'a', 4, True] --> 2 --> True
 #          [1, 2, 'u', 'a', 4, True] --> 5 --> False
 
-inputted_value = input()
+inputted_value = input("Input checking value: ")
 values = [1, 2, 'u', 'a', 4, True]
 try:
     inputted_value = int(inputted_value)
@@ -14,4 +14,4 @@ except ValueError:
             inputted_value = True
         elif inputted_value == "False":
             inputted_value = False
-print(inputted_value in values)
+print(f"Value is contained in a group of values: {inputted_value in values}")

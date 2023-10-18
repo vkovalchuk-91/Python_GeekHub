@@ -2,4 +2,4 @@
 # and integers and must be hardcoded.
 
 values = [1, 2, 'u', 'a', 4, True]
-print("".join([str(i) for i in values]))
+print("Concatenated value of all list elements: " + "".join([str(i) for i in values]))

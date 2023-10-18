@@ -4,5 +4,5 @@
 inputted_number = int(input("Input number of concatenating strings: "))
 concatenated_string = ""
 for i in range(inputted_number):
-    concatenated_string += input(f"Input string {i + 1}:")
-print(concatenated_string)
+    concatenated_string += input(f"Input string {i + 1} :")
+print(f"Concatenated string: {concatenated_string}")
