@@ -8,6 +8,10 @@
 venv/
 ENV/
 
+# examples
+.Examples
+Examples/
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
