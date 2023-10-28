@@ -6,7 +6,7 @@
 def calculate(first_arg: float, operator: str, second_arg: float):
     if operator == "+":
         result = first_arg + second_arg
-    elif operator == "+":
+    elif operator == "-":
         result = first_arg - second_arg
     elif operator == "*":
         result = first_arg * second_arg
