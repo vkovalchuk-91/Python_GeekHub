@@ -23,4 +23,17 @@ def calculate(first_arg: float, operator: str, second_arg: float):
     return result
 
 
-print(calculate(2, "+", 10))
+x_str = input("Enter first operand: ")
+operator_str = input("Enter operator (+, -, *, /, %, //, **): ")
+y_str = input("Enter second operand: ")
+
+if operator_str not in ["+", "-", "*", "/", "%", "//", "**"]:
+    print("Entered incorrect operator sign")
+else:
+    try:
+        x_float = float(x_str)
+        y_float = float(y_str)
+    except ValueError:
+        print("Entered incorrect operands")
+    else:
+        print(calculate(x_float, operator_str, y_float))

@@ -16,6 +16,12 @@ def compare_values(x: float, y: float):
     return result
 
 
-x = float(input("Введіть x: "))
-y = float(input("Введіть y: "))
-print(compare_values(x, y))
+x_str = input("Введіть x: ")
+y_str = input("Введіть y: ")
+try:
+    x_float = float(x_str)
+    y_float = float(y_str)
+except ValueError:
+    print("Entered incorrect values")
+else:
+    print(compare_values(x_float, y_float))
