@@ -5,7 +5,7 @@
 #    fnc([1, 2, 3, 4, 5], shift=1) --> [5, 1, 2, 3, 4]
 #    fnc([1, 2, 3, 4, 5], shift=-2) --> [3, 4, 5, 1, 2]
 
-def fnc(value_list: list, shift: int):
+def shift_values(value_list: list, shift: int):
     result = []
     if shift >= 0:
         for i in range(-shift, 0):
@@ -20,7 +20,7 @@ def fnc(value_list: list, shift: int):
     return result
 
 
-print(f"fnc([1, 2, 3, 4, 5], shift=1): {fnc([1, 2, 3, 4, 5], shift=1)}")
-print(f"fnc([1, 2, 3, 4, 5], shift=-2): {fnc([1, 2, 3, 4, 5], shift=-2)}")
-print(f"fnc([1, 2, 3, 4, 5, 6, 7, 8, 9], shift=5): {fnc([1, 2, 3, 4, 5, 6, 7, 8, 9], shift=5)}")
-print(f"fnc([1, 2, 3, 4, 5, 6, 7, 8, 9], shift=-4): {fnc([1, 2, 3, 4, 5, 6, 7, 8, 9], shift=-4)}")
+print(f"fnc([1, 2, 3, 4, 5], shift=1): {shift_values([1, 2, 3, 4, 5], shift=1)}")
+print(f"fnc([1, 2, 3, 4, 5], shift=-2): {shift_values([1, 2, 3, 4, 5], shift=-2)}")
+print(f"fnc([1, 2, 3, 4, 5, 6, 7, 8, 9], shift=5): {shift_values([1, 2, 3, 4, 5, 6, 7, 8, 9], shift=5)}")
+print(f"fnc([1, 2, 3, 4, 5, 6, 7, 8, 9], shift=-4): {shift_values([1, 2, 3, 4, 5, 6, 7, 8, 9], shift=-4)}")

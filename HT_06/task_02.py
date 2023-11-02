@@ -5,7 +5,9 @@
 # до копійок).
 
 def bank(a: float, years: float, percents: float = 10):
-    return a * ((1 + percents / 100) ** years)
+    deposit_sum = a * ((1 + percents / 100) ** years)
+    print(deposit_sum)
+    return round(deposit_sum, 2)
 
 
 def is_valid_input(inputted_str):
@@ -22,7 +24,10 @@ a_str = input("Enter deposit start value: ")
 years_str = input("Enter deposit years: ")
 percents_str = input("Enter deposit percents: ")
 if is_valid_input(a_str) and is_valid_input(years_str) and is_valid_input(percents_str):
-    print(f"Final sum: {bank(float(a_str), float(years_str), float(percents_str))}")
-    print(f"Final sum (with default percents): {bank(float(a_str), float(years_str))}")
+    print("Final sum:")
+    bank(float(a_str), float(years_str), float(percents_str))
+    print()
+    print("Final sum (with default percents):")
+    bank(float(a_str), float(years_str))
 else:
     print("Entered incorrect data!")

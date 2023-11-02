@@ -3,7 +3,7 @@
 #     Наприклад:
 #     1, 1, 'foo', [1, 2], True, 'foo', 1, [1, 2] ----> "1 -> 3, foo -> 2, [1, 2] -> 2, True -> 1"
 
-def fnc(value_list: list):
+def count_elements(value_list: list):
     bool_list = []
     other_list = []
     for value in value_list:
@@ -27,6 +27,6 @@ def get_str_from_list(analysing_list):
     return ", ".join([f"{item} -> {analysing_list.count(item)}" for item in count_list])
 
 
-print(f"[ 1, 1, 'foo', [1, 2], True, 'foo', 1, [1, 2] ]:      {fnc([1, 1, 'foo', [1, 2], True, 'foo', 1, [1, 2]])}")
-print(f"[ 1, 1, 'foo', [1, 2], True, 'foo', 1, [1, 2] ]:      {fnc([1, 1, True, 'foo', [1, 2], 5, [2,4], True, 'foo', 1, [1, 2]])}")
-print(f"[ 1, 1, 'foo', [1, 2], 'foo', 1, [1, 2] ]:      {fnc([1, 1, 'foo', [1, 2], 'foo', 1, [1, 2]])}")
+print(f"[ 1, 1, 'foo', [1, 2], True, 'foo', 1, [1, 2] ]:      {count_elements([1, 1, 'foo', [1, 2], True, 'foo', 1, [1, 2]])}")
+print(f"[ 1, 1, 'foo', [1, 2], True, 'foo', 1, [1, 2] ]:      {count_elements([1, 1, True, 'foo', [1, 2], 5, [2, 4], True, 'foo', 1, [1, 2]])}")
+print(f"[ 1, 1, 'foo', [1, 2], 'foo', 1, [1, 2] ]:      {count_elements([1, 1, 'foo', [1, 2], 'foo', 1, [1, 2]])}")
