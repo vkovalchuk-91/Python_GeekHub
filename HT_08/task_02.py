@@ -4,4 +4,4 @@
    Результат: [19, 28, 37, 46, 55, 64, 73, 82, 91]
 """
 
-print(list(i for i in range(100) if i % 10 + i // 10 == 10))
+print([i for i in range(100) if i % 10 + i // 10 == 10])
