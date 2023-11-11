@@ -16,15 +16,18 @@
 """
 
 
-def my_range(first_param: int, second_param: int = None, third_param: int = None, /):
-    if second_param is None and third_param is None:
-        start, stop, step = 0, first_param, 1
-    elif third_param is None:
-        start, stop, step = first_param, second_param, 1
+def my_range(*args: int):
+    start = 0
+    step = 1
+
+    if len(args) == 1:
+        stop = args[0]
+    elif len(args) == 2:
+        start, stop = args
+    elif len(args) == 3:
+        start, stop, step = args
     else:
-        if third_param == 0:
-            raise ValueError("my_range() third_param must not be zero")
-        start, stop, step = first_param, second_param, third_param
+        raise TypeError(f"my_range() accepts at most 3 arguments, got {len(args)}")
 
     i = start
     result_list = []
@@ -38,6 +41,30 @@ def my_range(first_param: int, second_param: int = None, third_param: int = None
             i += step
     return (element for element in result_list)
 
+print("my_range(7)")
+for i in my_range(7):
+    print(i)
 
-for i in my_range(1, -10, 5):
+print("-----------")
+
+print("my_range(3, 7)")
+for i in my_range(3, 7):
+    print(i)
+
+print("-----------")
+
+print("my_range(1, 10, 2)")
+for i in my_range(1, 10, 2):
+    print(i)
+
+print("-----------")
+
+print("my_range(1, -10, -2)")
+for i in my_range(1, -10, -2):
+    print(i)
+
+print("-----------")
+
+print("my_range(1, 10, -2)")
+for i in my_range(1, 10, -2):
     print(i)

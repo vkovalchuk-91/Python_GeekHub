@@ -4,5 +4,4 @@
    Результат: [5, 10, 20, 25, 35, 40, 50, 55, 65, 70, 80, 85, 95]
 """
 
-result = (i for i in range(100) if i % 5 == 0 and i % 3 != 0)
-print(list(result))
+print(list(i for i in range(100) if i % 5 == 0 and i % 3 != 0))
