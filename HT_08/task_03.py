@@ -22,16 +22,14 @@ def my_range(start: int = 0, stop: int = None, step: int = 1):
         start = 0
 
     i = start
-    result_list = []
     if step > 0:
         while i < stop:
-            result_list.append(i)
+            yield i
             i += step
     else:
         while i > stop:
-            result_list.append(i)
+            yield i
             i += step
-    return (element for element in result_list)
 
 
 print("my_range(7)")
