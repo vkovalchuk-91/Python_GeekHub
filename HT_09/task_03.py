@@ -50,23 +50,18 @@ def check_credentials(login, password):
 
 
 def start_menu_actions(login):
-    is_action_code_needed = True
-    while is_action_code_needed:
+    while True:
         action_code = input("Введіть дію:\n   1. Продивитись баланс\n   2. Поповнити баланс\n   3. Зняти кошти\n   4. "
                             "Вихід\n")
         if action_code == "1":
             print(f"Поточний баланс користувача {login}: {get_balance_sum(login)}")
-            return_menu_action(login)
-            is_action_code_needed = False
         elif action_code == "2":
             top_up_balance_action(login)
-            is_action_code_needed = False
         elif action_code == "3":
             withdraw_money_action(login)
-            is_action_code_needed = False
         elif action_code == "4":
             print("До побачення")
-            is_action_code_needed = False
+            return
         else:
             print("Неправильно введений код дії, спробуйте ще")
 
@@ -97,10 +92,8 @@ def top_up_balance_action(login):
         add_transaction(login, deposit_sum, "top_up_balance")
         update_balance_sum(login, balance_after)
         print(f"Баланс поповнено на {deposit_sum} грн")
-        return_menu_action(login)
     else:
         print("Ви ввели некоректне значення суми поповнення балансу")
-        return_menu_action(login)
 
 
 def withdraw_money_action(login):
@@ -110,29 +103,12 @@ def withdraw_money_action(login):
         balance_after = balance_before - float(withdraw_sum)
         if balance_after < 0:
             print("На рахунку недостатньо коштів для зняття даної суми")
-            return_menu_action(login)
         else:
             update_balance_sum(login, balance_after)
             add_transaction(login, withdraw_sum, "withdraw_money")
             print(f"З рахунку знято {withdraw_sum} грн")
-            return_menu_action(login)
     else:
         print("Ви ввели некоректне значення суми для зняття з рахунку")
-        return_menu_action(login)
-
-
-def return_menu_action(login):
-    is_action_code_needed = True
-    while is_action_code_needed:
-        action_code = input("\nВведіть наступну дію:\n   1. Повернутись в головне меню\n   2. Вихід\n")
-        if action_code == "1":
-            start_menu_actions(login)
-            is_action_code_needed = False
-        elif action_code == "2":
-            print("До побачення")
-            is_action_code_needed = False
-        else:
-            print("Неправильно введений код дії, спробуйте ще")
 
 
 def is_valid_sum(sum_string):

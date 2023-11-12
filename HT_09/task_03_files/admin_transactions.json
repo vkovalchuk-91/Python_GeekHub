@@ -1,1 +1,1 @@
-[{"operation": "top_up_balance", "sum": "50"}, {"operation": "withdraw_money", "sum": "10"}, {"operation": "top_up_balance", "sum": "30"}, {"operation": "top_up_balance", "sum": "4"}, {"operation": "top_up_balance", "sum": "3"}]
+[{"operation": "top_up_balance", "sum": "50"}, {"operation": "withdraw_money", "sum": "10"}, {"operation": "top_up_balance", "sum": "30"}, {"operation": "top_up_balance", "sum": "4"}, {"operation": "top_up_balance", "sum": "3"}, {"operation": "withdraw_money", "sum": "7"}, {"operation": "top_up_balance", "sum": "6"}]
