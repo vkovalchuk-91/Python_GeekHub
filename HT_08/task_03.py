@@ -16,18 +16,10 @@
 """
 
 
-def my_range(*args: int):
-    start = 0
-    step = 1
-
-    if len(args) == 1:
-        stop = args[0]
-    elif len(args) == 2:
-        start, stop = args
-    elif len(args) == 3:
-        start, stop, step = args
-    else:
-        raise TypeError(f"my_range() accepts at most 3 arguments, got {len(args)}")
+def my_range(start: int = 0, stop: int = None, step: int = 1):
+    if stop is None:
+        stop = start
+        start = 0
 
     i = start
     result_list = []
@@ -40,6 +32,7 @@ def my_range(*args: int):
             result_list.append(i)
             i += step
     return (element for element in result_list)
+
 
 print("my_range(7)")
 for i in my_range(7):
