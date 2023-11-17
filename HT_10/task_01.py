@@ -115,11 +115,17 @@ def insert_new_user_to_db(login, password, connection):
 
 
 def start_menu_actions(login, connection):
+    is_cash_collector = is_user_cash_collector(login, connection)
     while True:
-        action_code = input("Введіть дію:\n   1. Продивитись баланс\n   2. Поповнити баланс\n   3. Зняти кошти\n   4. "
-                            "Вихід\n")
+        if is_cash_collector:
+            action_code = input(
+                "Введіть дію:\n   1. Продивитись баланс\n   2. Поповнити баланс\n   3. Зняти кошти\n   4. "
+                "Вихід\n   5. Продивитись баланс банкомату\n   6. Змінити баланс банкомату\n")
+        else:
+            action_code = input("Введіть дію:\n   1. Продивитись баланс\n   2. Поповнити баланс\n   3. Зняти кошти\n  "
+                                " 4. Вихід\n")
         if action_code == "1":
-            print(f"Поточний баланс користувача {login}: {get_balance_sum(login, connection)}")
+            print(f"Поточний баланс користувача {login}: {get_user_balance_sum(login, connection)}")
         elif action_code == "2":
             top_up_balance_action(login, connection)
         elif action_code == "3":
@@ -127,11 +133,26 @@ def start_menu_actions(login, connection):
         elif action_code == "4":
             print("До побачення")
             return
+        elif is_cash_collector and action_code == "5":
+            print_atm_banknote_balance(connection)
+        elif is_cash_collector and action_code == "6":
+            change_atm_balance_action(connection)
         else:
             print("Неправильно введений код дії, спробуйте ще")
 
 
-def get_balance_sum(login, connection):
+def is_user_cash_collector(login, connection):
+    cursor = connection.cursor()
+    cursor.execute('''
+        SELECT is_cash_collector 
+        FROM users
+        WHERE login=?
+    ''', (login,))
+    result = cursor.fetchone()
+    return result[0]
+
+
+def get_user_balance_sum(login, connection):
     cursor = connection.cursor()
     cursor.execute('''
         SELECT ub.user_balance 
@@ -184,11 +205,16 @@ def update_balance_sum(login, balance_sum, connection):
 def top_up_balance_action(login, connection):
     deposit_sum = input("Введіть суму на яку бажаєте поповнити баланс: ")
     if is_valid_sum(deposit_sum):
-        balance_before = get_balance_sum(login, connection)
-        balance_after = balance_before + float(deposit_sum)
+        deposit_sum_float = float(deposit_sum)
+        if deposit_sum_float % 10 != 0:
+            deposit_sum_float -= deposit_sum_float % 10
+            print(f"Баланс поповнено на {deposit_sum_float} грн, повернуто здачею {float(deposit_sum) % 10} грн")
+        else:
+            print(f"Баланс поповнено на {deposit_sum} грн")
+        balance_before = get_user_balance_sum(login, connection)
+        balance_after = balance_before + deposit_sum_float
         add_transaction(login, deposit_sum, "top_up_balance", connection)
         update_balance_sum(login, balance_after, connection)
-        print(f"Баланс поповнено на {deposit_sum} грн")
     else:
         print("Ви ввели некоректне значення суми поповнення балансу")
 
@@ -196,14 +222,17 @@ def top_up_balance_action(login, connection):
 def withdraw_money_action(login, connection):
     withdraw_sum = input("Введіть суму грошей, яку бажаєте зняти з рахунку: ")
     if is_valid_sum(withdraw_sum):
-        balance_before = get_balance_sum(login, connection)
-        balance_after = balance_before - float(withdraw_sum)
-        if balance_after < 0:
-            print("На рахунку недостатньо коштів для зняття даної суми")
+        if float(withdraw_sum) > get_atm_balance_sum(connection):
+            print("Недостатньо коштів в банкоматі для зняття даної суми")
         else:
-            update_balance_sum(login, balance_after, connection)
-            add_transaction(login, withdraw_sum, "withdraw_money", connection)
-            print(f"З рахунку знято {withdraw_sum} грн")
+            balance_before = get_user_balance_sum(login, connection)
+            balance_after = balance_before - float(withdraw_sum)
+            if balance_after < 0:
+                print("На рахунку недостатньо коштів для зняття даної суми")
+            else:
+                update_balance_sum(login, balance_after, connection)
+                add_transaction(login, withdraw_sum, "withdraw_money", connection)
+                print(f"З рахунку знято {withdraw_sum} грн")
     else:
         print("Ви ввели некоректне значення суми для зняття з рахунку")
 
@@ -215,8 +244,70 @@ def is_valid_sum(sum_string):
             return True
         else:
             return False
-    except Exception:
+    except ValueError:
         return False
+
+
+def get_atm_balance_sum(connection):
+    cursor = connection.cursor()
+    cursor.execute('''
+            SELECT *
+            FROM atm_balance
+        ''')
+    result = cursor.fetchall()
+    balance = 0
+    if result is not None:
+        for banknote_quantity in result:
+            balance += banknote_quantity[0] * banknote_quantity[1]
+    return balance
+
+
+def print_atm_banknote_balance(connection):
+    cursor = connection.cursor()
+    cursor.execute('''
+            SELECT *
+            FROM atm_balance
+        ''')
+    result = cursor.fetchall()
+    print("Залишок купюр в банкоматі:")
+    for banknote_quantity in result:
+        print(f"Банкнот номіналом {banknote_quantity[0] } грн - {banknote_quantity[1]} од.")
+    print(f"Всього поточний залишок: {get_atm_balance_sum(connection)} грн")
+
+
+def change_atm_balance_action(connection):
+    banknote_nominal = input("Введіть номінал банкноти, кількість яких ви хочете змінити (доступні купюри 10, 20, 50, "
+                             "100, 200, 500, 1000 грн): ")
+    if banknote_nominal in ("10", "20", "50", "100", "200", "500", "1000"):
+        banknote_amount = input(f"Введіть кількість банкнот номіналом {banknote_nominal} грн, що буде в банкоматі "
+                                f"після  даної операції: ")
+        if is_valid_amount(banknote_amount):
+            change_atm_banknote_balance(banknote_nominal, banknote_amount, connection)
+        else:
+            print("Ви ввели некоректне значення кількості банкнот банкомату")
+    else:
+        print("Введеного вами номіналу не існує")
+
+
+def is_valid_amount(sum_string):
+    try:
+        sum_int = int(sum_string)
+        if sum_int > 0:
+            return True
+        else:
+            return False
+    except ValueError:
+        return False
+
+
+def change_atm_banknote_balance(banknote_nominal, banknote_amount, connection):
+    cursor = connection.cursor()
+    cursor.execute('''
+            UPDATE atm_balance
+            SET banknote_amount=?
+            WHERE banknote_nominal=?
+        ''', (banknote_amount, banknote_nominal))
+    connection.commit()
 
 
 def add_transaction(login, operation_sum, operation_name, connection):
@@ -294,9 +385,44 @@ def initialize_db(connection):
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS atm_balance
-        (banknote_nominal INTEGER PRIMARY KEY AUTOINCREMENT,
+        (banknote_nominal INTEGER PRIMARY KEY,
         banknote_amount INTEGER)
     """)
+
+    cursor.execute('''
+        INSERT OR IGNORE INTO atm_balance (banknote_nominal, banknote_amount) 
+        VALUES (10, 20) 
+    ''')
+
+    cursor.execute('''
+        INSERT OR IGNORE INTO atm_balance (banknote_nominal, banknote_amount) 
+        VALUES (20, 20) 
+    ''')
+
+    cursor.execute('''
+        INSERT OR IGNORE INTO atm_balance (banknote_nominal, banknote_amount) 
+        VALUES (50, 20) 
+    ''')
+
+    cursor.execute('''
+        INSERT OR IGNORE INTO atm_balance (banknote_nominal, banknote_amount) 
+        VALUES (100, 20) 
+    ''')
+
+    cursor.execute('''
+        INSERT OR IGNORE INTO atm_balance (banknote_nominal, banknote_amount) 
+        VALUES (200, 20) 
+    ''')
+
+    cursor.execute('''
+        INSERT OR IGNORE INTO atm_balance (banknote_nominal, banknote_amount) 
+        VALUES (500, 20) 
+    ''')
+
+    cursor.execute('''
+        INSERT OR IGNORE INTO atm_balance (banknote_nominal, banknote_amount) 
+        VALUES (1000, 20) 
+    ''')
 
 
 start()
