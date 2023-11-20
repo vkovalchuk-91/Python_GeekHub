@@ -289,10 +289,10 @@ def change_atm_balance_action(connection):
         print("Введеного вами номіналу не існує")
 
 
-def is_valid_amount(sum_string):
+def is_valid_amount(amount_string):
     try:
-        sum_int = int(sum_string)
-        if sum_int > 0:
+        amount_int = int(amount_string)
+        if amount_int >= 0:
             return True
         else:
             return False
