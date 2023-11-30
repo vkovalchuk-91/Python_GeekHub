@@ -9,9 +9,17 @@ class MyList:
         self.my_list = list(args)
 
     def __getitem__(self, key):
-        if key == 0:
-            raise Exception
-        return self.my_list[key - 1]
+        if isinstance(key, slice):
+            start, stop, step = key.start, key.stop, key.step
+            if start == 0:
+                raise Exception
+            start = start - 1 if start else None
+            stop = stop - 1 if stop else None
+            return self.my_list[start:stop:step]
+        else:
+            if key == 0:
+                raise Exception
+            return self.my_list[key - 1]
 
     def __setitem__(self, key, value):
         if key == 0:
