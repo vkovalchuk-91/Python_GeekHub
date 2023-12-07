@@ -44,8 +44,11 @@ currency = input("Введіть код валюти (наприклад, USD, E
 if len(input_date) == 1:
     if is_valid_date(input_date[0]):
         if is_valid_currency(currency):
-            input_date = datetime.strptime(input_date[0], "%d.%m.%Y").strftime("%d.%m.%Y")
-            get_exchange_rate(input_date, currency)
+            input_date = datetime.strptime(input_date[0], "%d.%m.%Y")
+            if input_date > datetime.now():
+                print("Невірна дата (дата з майбутнього).")
+            else:
+                get_exchange_rate(input_date.strftime("%d.%m.%Y"), currency)
         else:
             print("Невірний код валюти (Доступні: USD, EUR, CHF, GBP, PLZ, SEK, XAU, CAD).")
     else:
@@ -53,24 +56,29 @@ if len(input_date) == 1:
 elif len(input_date) == 2:
     start_date, end_date = input_date
     try:
-        if is_valid_date(input_date[0]):
-            if is_valid_currency(currency):
-                start_date = datetime.strptime(input_date[0], "%d.%m.%Y").strftime("%d.%m.%Y")
+        if is_valid_currency(currency):
+            if is_valid_date(input_date[0]):
+                start_date = datetime.strptime(input_date[0], "%d.%m.%Y")
             else:
-                print("Невірний код валюти (Доступні: USD, EUR, CHF, GBP, PLZ, SEK, XAU, CAD).")
-        else:
-            print("Невірний формат початкової дати. Введіть у форматі DD.MM.YYYY.")
-        if is_valid_date(input_date[1]):
-            if is_valid_currency(currency):
-                end_date = datetime.strptime(input_date[1], "%d.%m.%Y").strftime("%d.%m.%Y")
+                print("Невірний формат початкової дати. Введіть у форматі DD.MM.YYYY.")
+            if is_valid_date(input_date[1]):
+                end_date = datetime.strptime(input_date[1], "%d.%m.%Y")
             else:
-                print("Невірний код валюти (Доступні: USD, EUR, CHF, GBP, PLZ, SEK, XAU, CAD).")
+                print("Невірний формат кінцевої дати. Введіть у форматі DD.MM.YYYY.")
+
+            if start_date >= end_date:
+                print("Невірні дати (початкова дата більша або дорівнює кінцевій).")
+            elif start_date > datetime.now():
+                print("Невірна початкова дата (дата з майбутнього).")
+            elif end_date > datetime.now():
+                print("Невірна кінцева дата (дата з майбутнього).")
+            else:
+                delta = end_date - start_date
+                for i in range(delta.days + 1):
+                    current_date = start_date + timedelta(days=i)
+                    get_exchange_rate(current_date.strftime("%d.%m.%Y"), currency)
         else:
-            print("Невірний формат кінцевої дати. Введіть у форматі DD.MM.YYYY.")
-        delta = datetime.strptime(end_date, "%d.%m.%Y") - datetime.strptime(start_date, "%d.%m.%Y")
-        for i in range(delta.days + 1):
-            current_date = (datetime.strptime(start_date, "%d.%m.%Y") + timedelta(days=i)).strftime("%d.%m.%Y")
-            get_exchange_rate(current_date, currency)
+            print("Невірний код валюти (Доступні: USD, EUR, CHF, GBP, PLZ, SEK, XAU, CAD).")
     except ValueError:
         print("Невірний формат дат. Введіть у форматі DD.MM.YYYY.")
 else:

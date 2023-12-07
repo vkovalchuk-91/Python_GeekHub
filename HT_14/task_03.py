@@ -11,11 +11,15 @@ import csv
 
 def scrape_quotes(base_url, num_pages):
     all_quotes = []
+    next_page_suffix = ""
 
     for page in range(1, num_pages + 1):
-        url = f"{base_url}/page/{page}"
+        print(f"Starting processing {page} page")
+        url = base_url + next_page_suffix
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'lxml')
+        if page != num_pages:
+            next_page_suffix = soup.find('li', class_='next').find('a')['href']
 
         quotes = soup.find_all('div', class_='quote')
         for quote in quotes:
@@ -30,6 +34,7 @@ def scrape_quotes(base_url, num_pages):
 
             all_quotes.append({'Text': text, 'Author-name': author, 'Author-born-date': born_date,
                                'Author-born-location': born_location, 'Author-description': description})
+        print(f"Page {page} has been processed")
 
     return all_quotes
 
