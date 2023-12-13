@@ -8,9 +8,10 @@ import csv
 import time
 
 import requests
+from requests import JSONDecodeError
 
 
-def get_response_json(cat_id, startIndex, endIndex):
+def get_response_json(cat_id, start_index, end_index):
     while True:
         try:
             cookies = {
@@ -65,58 +66,70 @@ def get_response_json(cat_id, startIndex, endIndex):
 
             response = requests.get(
                 f'https://www.sears.com/api/sal/v3/products/search?'
-                f'startIndex={startIndex}'
-                f'&endIndex={endIndex}'
+                f'startIndex={start_index}'
+                f'&endIndex={end_index}'
                 f'&storeId=10153'
                 f'&catGroupId={cat_id}',
                 cookies=cookies,
                 headers=headers,
             )
             return response.json()
-        except Exception:
+        except JSONDecodeError:
             print(f"Забагато запитів! Додаткові 70 секунд очікування для повторного запиту")
             time.sleep(70)
 
 
-def save_to_csv(cat_id, prods):
-    filename = str(cat_id) + "_products.csv"
+def save_to_csv(category_id, products_information_list):
+    filename = str(category_id) + "_products.csv"
     with open(filename, 'a', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['name', 'brandName', 'regularPrice', 'finalPrice']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
-        for product in prods:
-            writer.writerow(product)
+        for product_information in products_information_list:
+            writer.writerow(product_information)
 
 
-while True:
-    category_id_str = input("Введіть ID категорії для парсингу товарів: ")
-    try:
-        category_id = int(category_id_str)
-        if category_id > 0:
+def input_category_id():
+    while True:
+        category_id_str = input("Введіть ID категорії для парсингу товарів: ")
+        try:
+            category_id = int(category_id_str)
+            if category_id > 0:
+                return category_id
+            print("ID категорії може складатися тільки з цифр та бути більше 0, повторіть спробу!")
+        except ValueError:
+            print("ID категорії може складатися тільки з цифр та бути більше 0, повторіть спробу!")
+
+
+def parse_save_data(start_index, offset, category_id):
+    end_index = offset
+    request_counter = 0
+    while True:
+        response_json = get_response_json(category_id, start_index, end_index)
+        parsed_part_of_products = []
+        try:
+            for product_raw_data in response_json['items']:
+                parsed_part_of_products.append({'name': product_raw_data['name'],
+                                                'brandName': product_raw_data['brandName'],
+                                                'regularPrice': product_raw_data['price']['regularPrice'],
+                                                'finalPrice': product_raw_data['price']['finalPrice']})
+            save_to_csv(category_id, parsed_part_of_products)
+        except KeyError:
+            if len(parsed_part_of_products) == 0 and request_counter == 0:
+                print(f"Для категорії '{category_id}' товарів не існує")
+            print(f"Парсинг закінчено!")
             break
-        print("ID категорії може складатися тільки з цифр та бути більше 0, повторіть спробу!")
-    except ValueError:
-        print("ID категорії може складатися тільки з цифр та бути більше 0, повторіть спробу!")
-startIndex = 1
-offset = 48
-endIndex = offset
-request_counter = 0
-while True:
-    response_json = get_response_json(category_id, startIndex, endIndex)
-    products = []
-    try:
-        for item in response_json['items']:
-            products.append({'name': item['name'], 'brandName': item['brandName'],
-                             'regularPrice': item['price']['regularPrice'], 'finalPrice': item['price']['finalPrice']})
-        save_to_csv(category_id, products)
-    except KeyError:
-        if len(products) == 0 and request_counter == 0:
-            print(f"Для категорії '{category_id}' товарів не існує")
-        print(f"Парсинг закінчено!")
-        break
 
-    request_counter += 1
-    print(f"Успішний {request_counter} запит. Оброблено дані {startIndex=}, {endIndex=}")
-    startIndex += offset
-    endIndex += offset
+        request_counter += 1
+        print(f"Успішний {request_counter} запит. Оброблено дані {start_index=}, {end_index=}")
+        start_index += offset
+        end_index += offset
+
+
+if __name__ == "__main__":
+    beginning_index = 1
+    step = 48
+
+    inputted_category_id = input_category_id()
+    parse_save_data(beginning_index, step, inputted_category_id)
