@@ -26,9 +26,7 @@ import base64
 import os
 import csv
 import requests
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
@@ -81,7 +79,7 @@ class RobotOrderProcessor:
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--disable-popup-blocking")
         chrome_options.add_argument("--start-maximized")
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install(), options=chrome_options))
+        driver = webdriver.Chrome(options=chrome_options)
         driver.get(base_url)
         return driver
 
