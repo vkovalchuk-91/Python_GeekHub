@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Мої продукти</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .pagination {
+        text-align: center;
+        margin-top: 10px; /* Додайте відступ від верху, якщо потрібно */
+      }
+
+      .step-links {
+        display: inline-block;
+      }
+
+      .step-links a {
+        margin-right: 12px;
+      }
+
+      .current {
+        margin-right: 12px;
+      }
+    </style>
+</head>
+<body>
+
+<h2>Список збережених продуктів</h2>
+
+<table>
+<thead>
+    <tr>
+        <th>Назва</th>
+        <th>Ціна</th>
+        <th>Дата оновлення даних</th>
+    </tr>
+</thead>
+<tbody>
+    {% for product in products_list %}
+        <tr>
+            <td><a href="{% url 'products:product_details' pk=product.pk %}">{{ product.name }}</a></td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.update_date|date:"d.m.Y H:i" }}</td>
+        </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+<div class="pagination">
+<span class="step-links">
+    <br><br>
+    {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; перша</a>
+        <span style="margin-right: 12px;"></span>
+        <a href="?page={{ page_obj.previous_page_number }}">&laquo; попередня</a>
+        <span style="margin-right: 12px;"></span>
+    {% endif %}
+
+    <span class="current">
+        Сторінка {{ page_obj.number }} з {{ page_obj.paginator.num_pages }}.
+    </span>
+
+    {% if page_obj.has_next %}
+        <span style="margin-right: 12px;"></span>
+        <a href="?page={{ page_obj.next_page_number }}">наступна &raquo;</a>
+        <span style="margin-right: 12px;"></span>
+        <a href="?page={{ page_obj.paginator.num_pages }}">остання &raquo;</a>
+    {% endif %}
+</span>
+</div>
+
+<br><br>
+<p><a href="{% url 'products:product_input' %}">Додати продукти</a></p>
+
+</body>
+</html>
