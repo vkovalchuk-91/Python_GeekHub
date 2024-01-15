@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Корзина</title>
+        <!-- Підключення Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- Підключення Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .btn {
+        border: none; /* Видалити границі кнопки */
+        background: none; /* Видалити фон кнопки, якщо він є */
+        padding: 0; /* Знуляти відступи */
+        cursor: pointer; /* Зробити курсор вказівником при наведенні */
+      }
+    </style>
+</head>
+<body>
+
+
+
+<h2>Товари в корзині</h2>
+
+{% if is_empty %}
+    <br>
+    Корзина пуста, перейдіть до каталогу продуктів, щоб додати товари
+{% else %}
+
+<a href="{% url 'products:clear_item_in_cart' %}">
+    <button class="btn btn-outline-secondary float-right" type="button">
+      <h3><i class="fas fa-times"></i> Очистити всю корзину</h3>
+    </button>
+</a>
+
+<table>
+<thead>
+    <tr>
+        <th>Назва</th>
+        <th style="text-align: center;">Ціна</th>
+        <th style="text-align: center;">Кількість</th>
+        <th style="text-align: center;">Вартість</th>
+        <th style="text-align: center;">Видалити</th>
+    </tr>
+</thead>
+<tbody>
+    {% for cart_item in cart_items %}
+        <tr>
+            <td><a href="{% url 'products:product_details' pk=cart_item.0.pk %}">{{ cart_item.0.name }}</a></td>
+            <td style="text-align: center;">{{ cart_item.0.price }}</td>
+            <td style="text-align: center;">
+                <a href="{% url 'products:decrease_item_in_cart_quantity' %}?id={{ cart_item.0.id }}">
+                    <button class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
+                </a>
+                {{ cart_item.1 }}
+                <a href="{% url 'products:increase_item_in_cart_quantity' %}?id={{ cart_item.0.id }}">
+                    <button class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+                </a>
+            </td>
+            <td style="text-align: center;">{{ cart_item.2 }}</td>
+            <td style="text-align: center;">
+                <a href="{% url 'products:remove_item_in_cart' %}?id={{ cart_item.0.id }}">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>
+<tfoot>
+    <tr>
+        <td><strong>Всього вартість замовлення</strong></td>
+        <td colspan="4" style="text-align: center;"><strong>{{ total }}</strong></td>
+    </tr>
+</tfoot>
+</table>
+
+<a href="{% url 'products:submit_order' %}">
+    <button class="btn btn-outline-primary" type="button">
+      <h2><i class="fas fa-check-circle"></i> Підтвердити замовлення</h2>
+    </button>
+</a>
+{% endif %}
+
+<br><br>
+<p><a href="{% url 'products:product_input' %}">Додати продукти в каталог</a></p>
+<p><a href="{% url 'products:products_list' %}">Каталог продуктів</a></p>
+</body>
+</html>

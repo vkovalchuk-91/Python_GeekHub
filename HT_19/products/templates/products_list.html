@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Каталог продуктів</title>
+    <!-- Підключення Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .pagination {
+        text-align: center;
+        margin-top: 10px; /* Додайте відступ від верху, якщо потрібно */
+      }
+
+      .step-links {
+        display: inline-block;
+      }
+
+      .step-links a {
+        margin-right: 12px;
+      }
+
+      .current {
+        margin-right: 12px;
+      }
+
+      .btn {
+        border: none; /* Видалити границі кнопки */
+        background: none; /* Видалити фон кнопки, якщо він є */
+        padding: 0; /* Знуляти відступи */
+        cursor: pointer; /* Зробити курсор вказівником при наведенні */
+      }
+
+      .empty-basket {
+        color: #8c8c8c; /* Блідно сірий колір для пустої корзини */
+      }
+
+      .full-basket {
+        color: #007bff; /* Стандартний синій колір для повної корзини */
+      }
+    </style>
+    <script>
+        // Функція для ховання повідомлення через певний час
+        function hideMessage() {
+            var successMessage = document.getElementById('success-message');
+            successMessage.style.display = 'none';
+        }
+
+        // Викликаємо функцію при завантаженні сторінки
+        window.onload = function() {
+            var successMessage = document.getElementById('success-message');
+            if (successMessage) {
+                setTimeout(hideMessage, 1500);  // Ховаємо повідомлення через 1,5 секунди (1500 мілісекунд)
+            }
+        };
+    </script>
+</head>
+<body>
+
+<h2>Список збережених продуктів</h2>
+
+<table>
+<thead>
+    <tr>
+        <th>Назва</th>
+        <th style="text-align: center;">Ціна</th>
+        <th style="text-align: center;">Додати в корзину</th>
+        <th style="text-align: center;">Дата оновлення даних</th>
+    </tr>
+</thead>
+<tbody>
+    {% for product in products_list %}
+        <tr>
+            <td><a href="{% url 'products:product_details' pk=product.pk %}">{{ product.name }}</a></td>
+            <td style="text-align: center;">{{ product.price }}</td>
+            <td style="text-align: center;">
+                <a href="{% url 'products:add_to_cart' %}?id={{ product.id }}&page={{request.GET.page}}">
+                    <i class="fas fa-shopping-basket
+                    {% if product.id|stringformat:"s" in request.session.cart.keys %}full-basket
+                    {% else %}empty-basket{% endif %}"></i>
+                </a>
+            </td>
+            <td style="text-align: center;">{{ product.update_date|date:"d.m.Y H:i" }}</td>
+        </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+<div class="pagination">
+<span class="step-links">
+    <br><br>
+    {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; перша</a>
+        <span style="margin-right: 12px;"></span>
+        <a href="?page={{ page_obj.previous_page_number }}">&laquo; попередня</a>
+        <span style="margin-right: 12px;"></span>
+    {% endif %}
+
+    <span class="current">
+        Сторінка {{ page_obj.number }} з {{ page_obj.paginator.num_pages }}.
+    </span>
+
+    {% if page_obj.has_next %}
+        <span style="margin-right: 12px;"></span>
+        <a href="?page={{ page_obj.next_page_number }}">наступна &raquo;</a>
+        <span style="margin-right: 12px;"></span>
+        <a href="?page={{ page_obj.paginator.num_pages }}">остання &raquo;</a>
+    {% endif %}
+</span>
+</div>
+
+<br><br>
+<p><a href="{% url 'products:product_input' %}">Додати продукти в каталог</a></p>
+<p><a href="{% url 'products:products_in_cart_list' %}">Перейти в корзину</a></p>
+
+{% if request.GET.is_submitted %}
+    <div id="success-message" style="background-color: yellow;">
+        <p><h1><strong>Замовлення прийнято в обробку</strong></h1></p>
+    </div>
+{% endif %}
+
+</body>
+</html>

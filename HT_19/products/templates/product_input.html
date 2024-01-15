@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Додати продукти</title>
+    <style>
+        form {
+            display: flex;
+            align-items: center;
+        }
+
+        .form-field {
+            margin-right: 10px;
+        }
+
+        .success-green {
+            background-color: green;
+            color: white;
+        }
+
+        .success-red {
+            background-color: red;
+            color: white;
+        }
+    </style>
+    <script>
+        // Функція для ховання повідомлення через певний час
+        function hideMessage() {
+            var successMessage = document.getElementById('success-message');
+            successMessage.style.display = 'none';
+        }
+
+        // Викликаємо функцію при завантаженні сторінки
+        window.onload = function() {
+            var successMessage = document.getElementById('success-message');
+            if (successMessage) {
+                setTimeout(hideMessage, 1500);  // Ховаємо повідомлення через 1,5 секунди (1500 мілісекунд)
+            }
+        };
+    </script>
+</head>
+<body>
+
+<h2>Введіть будь-яку кількість ID продуктів яку хочете додати в базу збережених</h2>
+
+<form method="post" action="{% url 'products:product_input' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <span class="form-field"></span>
+    <button type="submit">Відправити</button>
+
+    <span class="form-field"></span>
+    {% if success_message %}
+        <div id="success-message" class="
+        {% if success_message == 'Дані успішно відправлені!' %}success-green
+        {% elif success_message == 'Дозволені тільки цифри та кома!' %}success-red
+        {% endif %}">
+            <p><b>{{ success_message }}</b></p>
+        </div>
+    {% endif %}
+
+</form>
+<p><a href="{% url 'products:products_list' %}">Каталог продуктів</a></p>
+<p><a href="{% url 'products:products_in_cart_list' %}">Перейти в корзину</a></p>
+
+</body>
+</html>
