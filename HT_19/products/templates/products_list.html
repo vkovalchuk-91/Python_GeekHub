@@ -82,18 +82,26 @@
     </tr>
 </thead>
 <tbody>
-    {% for product in products_list %}
+    {% for item in items_list %}
         <tr>
-            <td><a href="{% url 'products:product_details' pk=product.pk %}">{{ product.name }}</a></td>
-            <td style="text-align: center;">{{ product.price }}</td>
+            <td><a href="{% url 'products:product_details' pk=item.product.pk %}">{{ item.product.name }}</a></td>
+            <td style="text-align: center;">{{ item.product.price }}</td>
             <td style="text-align: center;">
-                <a href="{% url 'products:add_to_cart' %}?id={{ product.id }}&page={{request.GET.page}}">
-                    <i class="fas fa-shopping-basket
-                    {% if product.id|stringformat:"s" in request.session.cart.keys %}full-basket
-                    {% else %}empty-basket{% endif %}"></i>
-                </a>
+                {% if item.quantity == 0 %}
+                    <a href="{% url 'cart:increase_item_in_cart_quantity' %}?id={{ item.product.id }}&is_catalog=True&page={{request.GET.page}}">
+                        <i class="fas fa-shopping-basket empty-basket"></i>
+                    </a>
+                {% else %}
+                    <a href="{% url 'cart:decrease_item_in_cart_quantity' %}?id={{ item.product.id }}&is_catalog=True&page={{request.GET.page}}">
+                        <button class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
+                    </a>
+                        {{ item.quantity }}
+                    <a href="{% url 'cart:increase_item_in_cart_quantity' %}?id={{ item.product.id }}&is_catalog=True&page={{request.GET.page}}">
+                        <button class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+                    </a>
+                {% endif %}
             </td>
-            <td style="text-align: center;">{{ product.update_date|date:"d.m.Y H:i" }}</td>
+            <td style="text-align: center;">{{ item.product.update_date|date:"d.m.Y H:i" }}</td>
         </tr>
     {% endfor %}
 </tbody>
@@ -124,7 +132,7 @@
 
 <br><br>
 <p><a href="{% url 'products:product_input' %}">Додати продукти в каталог</a></p>
-<p><a href="{% url 'products:products_in_cart_list' %}">Перейти в корзину</a></p>
+<p><a href="{% url 'cart:products_in_cart_list' %}">Перейти в корзину</a></p>
 
 {% if request.GET.is_submitted %}
     <div id="success-message" style="background-color: yellow;">

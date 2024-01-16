@@ -41,7 +41,7 @@
     Корзина пуста, перейдіть до каталогу продуктів, щоб додати товари
 {% else %}
 
-<a href="{% url 'products:clear_item_in_cart' %}">
+<a href="{% url 'cart:clear_item_in_cart' %}">
     <button class="btn btn-outline-secondary float-right" type="button">
       <h3><i class="fas fa-times"></i> Очистити всю корзину</h3>
     </button>
@@ -60,20 +60,20 @@
 <tbody>
     {% for cart_item in cart_items %}
         <tr>
-            <td><a href="{% url 'products:product_details' pk=cart_item.0.pk %}">{{ cart_item.0.name }}</a></td>
-            <td style="text-align: center;">{{ cart_item.0.price }}</td>
+            <td><a href="{% url 'products:product_details' pk=cart_item.product.pk %}">{{ cart_item.product.name }}</a></td>
+            <td style="text-align: center;">{{ cart_item.product.price }}</td>
             <td style="text-align: center;">
-                <a href="{% url 'products:decrease_item_in_cart_quantity' %}?id={{ cart_item.0.id }}">
+                <a href="{% url 'cart:decrease_item_in_cart_quantity' %}?id={{ cart_item.product.id }}">
                     <button class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
                 </a>
-                {{ cart_item.1 }}
-                <a href="{% url 'products:increase_item_in_cart_quantity' %}?id={{ cart_item.0.id }}">
+                {{ cart_item.quantity }}
+                <a href="{% url 'cart:increase_item_in_cart_quantity' %}?id={{ cart_item.product.id }}">
                     <button class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
                 </a>
             </td>
-            <td style="text-align: center;">{{ cart_item.2 }}</td>
+            <td style="text-align: center;">{{ cart_item.item_total }}</td>
             <td style="text-align: center;">
-                <a href="{% url 'products:remove_item_in_cart' %}?id={{ cart_item.0.id }}">
+                <a href="{% url 'cart:remove_item_in_cart' %}?id={{ cart_item.product.id }}">
                     <i class="fas fa-trash-alt"></i>
                 </a>
             </td>
@@ -88,7 +88,7 @@
 </tfoot>
 </table>
 
-<a href="{% url 'products:submit_order' %}">
+<a href="{% url 'cart:submit_order' %}">
     <button class="btn btn-outline-primary" type="button">
       <h2><i class="fas fa-check-circle"></i> Підтвердити замовлення</h2>
     </button>
