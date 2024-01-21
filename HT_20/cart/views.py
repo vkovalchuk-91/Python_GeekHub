@@ -9,48 +9,39 @@ from products.models import Product
 
 
 @login_required
-def increase_item_in_cart_quantity(request):
-    product_id = request.GET.get('id')
-    is_catalog = request.GET.get('is_catalog')
-    page = request.GET.get('page')
-    if product_id:
-        cart = request.session.get('cart') or {}
-        if product_id in cart:
-            cart[product_id] += 1
-        else:
-            cart[product_id] = 1
-        request.session['cart'] = cart
-    if is_catalog:
-        return redirect(reverse('products:products_list') + f'?page={page}')
-    return redirect(reverse('cart:products_in_cart_list'))
+def increase_item_in_cart_quantity(request, pk):
+    product_id = str(pk)
+    cart = request.session.get('cart') or {}
+    if product_id in cart:
+        cart[product_id] += 1
+    else:
+        cart[product_id] = 1
+    request.session['cart'] = cart
+    return redirect(request.META.get('HTTP_REFERER', reverse('products:products_list')))
 
 
 @login_required
-def decrease_item_in_cart_quantity(request):
-    product_id = request.GET.get('id')
-    is_catalog = request.GET.get('is_catalog')
-    page = request.GET.get('page')
-    if product_id:
-        cart = request.session.get('cart') or {}
-        if product_id in cart:
-            if is_catalog and cart[product_id] == 1:
-                cart.pop(product_id)
-            elif cart[product_id] > 0:
-                cart[product_id] -= 1
-        request.session['cart'] = cart
-    if is_catalog:
-        return redirect(reverse('products:products_list') + f'?page={page}')
-    return redirect(reverse('cart:products_in_cart_list'))
+def decrease_item_in_cart_quantity(request, pk):
+    product_id = str(pk)
+    cart = request.session.get('cart') or {}
+    if product_id in cart:
+        is_cart = str(request.META.get('HTTP_REFERER', 'not_cart'))[-5:] == 'cart/'
+        if not is_cart and cart[product_id] == 1:
+            cart.pop(product_id)
+        elif cart[product_id] > 0:
+            cart[product_id] -= 1
+    request.session['cart'] = cart
+    return redirect(request.META.get('HTTP_REFERER', reverse('products:products_list')))
 
 
 @login_required
-def remove_item_in_cart(request):
-    product_id = request.GET.get('id')
+def remove_item_in_cart(request, pk):
+    product_id = str(pk)
     if product_id:
         cart = request.session.get('cart') or {}
         cart.pop(product_id)
         request.session['cart'] = cart
-    return redirect(reverse('cart:products_in_cart_list'))
+    return redirect(request.META.get('HTTP_REFERER', reverse('products:products_list')))
 
 
 @login_required
@@ -58,7 +49,7 @@ def clear_item_in_cart(request):
     cart = request.session.get('cart') or {}
     cart.clear()
     request.session['cart'] = cart
-    return redirect(reverse('cart:products_in_cart_list'))
+    return redirect(request.META.get('HTTP_REFERER', reverse('products:products_list')))
 
 
 @login_required

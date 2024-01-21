@@ -50,13 +50,16 @@ class ProductsListView(ListView):
             items.append({'product': product, 'quantity': quantity})
         context['items_list'] = items
         context['categories'] = Category.objects.all()
+        context['filtered_category'] = self.get_filtered_category()
+        return context
+
+    def get_filtered_category(self):
         filtered_category = Category.objects.filter(id=self.kwargs.get('cat_slug')).first()
         if filtered_category:
             filtered_category_label = filtered_category.name
         else:
             filtered_category_label = 'Всі категорії'
-        context['filtered_category'] = filtered_category_label
-        return context
+        return filtered_category_label
 
 
 class ProductDetailView(DetailView):
@@ -107,5 +110,6 @@ def product_delete(request, pk):
             messages.success(request, f'Продукт ID={pk} був успішно видалений.')
             return redirect(reverse('products:products_list'))
 
-    page = request.GET.get('page')
-    return render(request, 'product_delete.html', {'delete_object': delete_object, 'page': page})
+    referer_url = request.META.get('HTTP_REFERER', reverse('products:products_list'))
+    return render(request, 'product_delete.html',
+                  {'delete_object': delete_object, 'referer_url': referer_url})
