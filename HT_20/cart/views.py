@@ -1,9 +1,14 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from products.models import Product
 
 
+@login_required
 def increase_item_in_cart_quantity(request):
     product_id = request.GET.get('id')
     is_catalog = request.GET.get('is_catalog')
@@ -20,6 +25,7 @@ def increase_item_in_cart_quantity(request):
     return redirect(reverse('cart:products_in_cart_list'))
 
 
+@login_required
 def decrease_item_in_cart_quantity(request):
     product_id = request.GET.get('id')
     is_catalog = request.GET.get('is_catalog')
@@ -37,6 +43,7 @@ def decrease_item_in_cart_quantity(request):
     return redirect(reverse('cart:products_in_cart_list'))
 
 
+@login_required
 def remove_item_in_cart(request):
     product_id = request.GET.get('id')
     if product_id:
@@ -46,6 +53,7 @@ def remove_item_in_cart(request):
     return redirect(reverse('cart:products_in_cart_list'))
 
 
+@login_required
 def clear_item_in_cart(request):
     cart = request.session.get('cart') or {}
     cart.clear()
@@ -53,15 +61,16 @@ def clear_item_in_cart(request):
     return redirect(reverse('cart:products_in_cart_list'))
 
 
+@login_required
 def submit_order(request):
     cart = request.session.get('cart') or {}
     cart.clear()
     request.session['cart'] = cart
-    return redirect(reverse('products:products_list') + '?is_submitted=True')
-    # return redirect(reverse('products:products_list'), kwargs={'is_submitted': True})
-    # return redirect(reverse('products:products_list', kwargs={'is_submitted': True}))
+    messages.success(request, 'Замовлення прийнято в обробку.')
+    return redirect(reverse('products:products_list'))
 
 
+@login_required
 def cart_view(request):
     cart_items = []
     total = 0

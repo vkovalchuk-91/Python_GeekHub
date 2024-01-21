@@ -45,7 +45,3 @@ class ProductDetailView(DetailView):
     model = Product
     template_name = "product_details.html"
     context_object_name = "product_details"
-
-
-def my_function(number):
-    return number * 2
