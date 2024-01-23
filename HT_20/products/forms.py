@@ -7,7 +7,7 @@ from .models import Product
 class GetProductIdsForm(forms.Form):
     ids_raw_data = forms.CharField(
         label='Введіть ID продуктів, розділені комою',
-        max_length=5000,
+        max_length=500000,
         validators=[
             RegexValidator(
                 regex=r'^[a-zA-Z\d,]+$',

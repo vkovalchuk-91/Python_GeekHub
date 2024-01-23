@@ -1,3 +1,6 @@
+import subprocess
+import sys
+
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -6,7 +9,6 @@ from django.views.generic import DetailView
 
 from .forms import GetProductIdsForm, ProductForm
 from .models import Product, Category
-from .services import handle_valid_data
 
 
 def product_input(request):
@@ -17,7 +19,13 @@ def product_input(request):
     if request.method == 'POST':
         form = GetProductIdsForm(request.POST)
         if form.is_valid():
-            handle_valid_data(form.cleaned_data)
+            sub_process = subprocess.Popen([
+                sys.executable,
+                'manage.py',
+                'run_scraping',
+                form.cleaned_data['ids_raw_data']
+            ])
+            print(f'Запущено SubProcess id:{sub_process.pid} для скрапінгу даних')
             messages.success(request, 'Дані успішно додані в чергу на обробку!')
         else:
             messages.error(request, 'Дозволені тільки латинські букви, цифри та кома!')
