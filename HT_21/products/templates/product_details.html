@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Продукт</title>
+    <!-- Підключення Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .btn {
+        border: none; /* Видалити границі кнопки */
+        background: none; /* Видалити фон кнопки, якщо він є */
+        cursor: pointer; /* Зробити курсор вказівником при наведенні */
+      }
+    </style>
+</head>
+<body>
+
+{% if request.user.is_authenticated %}
+    <p style="text-align: right;">
+        {% if request.user.is_superuser %}
+            <i class="fas fa-crown"></i>&nbsp;&nbsp;
+        {% endif %}
+        Користувач: {{ request.user.username }}&nbsp;&nbsp;
+        <a href="{% url 'users_accounts:logout' %}">
+            <button class="btn btn-outline-secondary ml-auto" type="button">
+                <i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Вийти
+            </button>
+        </a>
+    </p>
+{% else %}
+    <p style="text-align: right;">
+        Гість&nbsp;&nbsp;
+        <a href="{% url 'users_accounts:login' %}">
+            <button class="btn btn-outline-secondary ml-auto" type="button">
+                <i class="fas fa-sign-in-alt"></i>&nbsp;&nbsp;Увійти
+            </button>
+        </a>
+    </p>
+{% endif %}
+
+<h2>{{ product_details.name }}</h2>
+<p><strong>Ціна:</strong> {{ product_details.price }}</p>
+<p><strong>Короткий опис:</strong> {{ product_details.short_description }}</p>
+<p><strong>Бренд:</strong> {{ product_details.brand }}</p>
+<p><strong>Категорія:</strong> {{ product_details.category }}</p>
+<p><strong>Лінк на продукт:</strong> <a href="{{ product_details.link_to_product }}">{{ product_details.link_to_product }}</a></p>
+<p><strong>Дата оновлення:</strong> {{ product_details.update_date|date:"d.m.Y H:i" }}</p>
+
+<br><br>
+{% if request.user.is_superuser %}
+    <p><a href="{% url 'products:product_input' %}">Додати продукти в каталог</a></p>
+{% endif %}
+<p><a href="{% url 'products:products_list' %}">Каталог продуктів</a></p>
+{% if request.user.is_authenticated %}
+    <p><a href="{% url 'cart:products_in_cart_list' %}">Перейти в корзину</a></p>
+{% endif %}
+
+</body>
+</html>

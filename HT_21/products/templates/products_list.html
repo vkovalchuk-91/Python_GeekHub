@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Каталог продуктів</title>
+    <!-- Підключення Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .pagination {
+        text-align: center;
+        margin-top: 10px; /* Додайте відступ від верху, якщо потрібно */
+      }
+
+      .step-links {
+        display: inline-block;
+      }
+
+      .step-links a {
+        margin-right: 12px;
+      }
+
+      .current {
+        margin-right: 12px;
+      }
+
+      .btn {
+        border: none; /* Видалити границі кнопки */
+        background: none; /* Видалити фон кнопки, якщо він є */
+        cursor: pointer; /* Зробити курсор вказівником при наведенні */
+      }
+    </style>
+    <script>
+        // Функція для ховання повідомлення через певний час
+        function hideMessage() {
+            var message = document.getElementById('message');
+            message.style.display = 'none';
+        }
+
+        // Викликаємо функцію при завантаженні сторінки
+        window.onload = function() {
+            var message = document.getElementById('message');
+            if (message) {
+                setTimeout(hideMessage, 1500);  // Ховаємо повідомлення через 1,5 секунди (1500 мілісекунд)
+            }
+        };
+    </script>
+</head>
+<body>
+
+{% if request.user.is_authenticated %}
+    <p style="text-align: right;">
+        {% if request.user.is_superuser %}
+            <i class="fas fa-crown"></i>&nbsp;&nbsp;
+        {% endif %}
+        Користувач: {{ request.user.username }}&nbsp;&nbsp;
+        <a href="{% url 'users_accounts:logout' %}">
+            <button class="btn btn-outline-secondary ml-auto" type="button">
+                <i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Вийти
+            </button>
+        </a>
+    </p>
+{% else %}
+    <p style="text-align: right;">
+        Гість&nbsp;&nbsp;  
+        <a href="{% url 'users_accounts:login' %}">
+            <button class="btn btn-outline-secondary ml-auto" type="button">
+                <i class="fas fa-sign-in-alt"></i>&nbsp;&nbsp;Увійти
+            </button>
+        </a>
+    </p>
+{% endif %}
+
+<h2>Фільтри категорій збережених продуктів</h2>
+<a href="{% url 'products:products_list' %}">
+        Всі категорії
+    </a>&nbsp;&nbsp;&nbsp;&nbsp;
+{% for category in categories %}
+    <a href="{% url 'products:products_list_by_category' cat_slug=category.pk %}">
+        {{ category.name }}
+    </a>&nbsp;&nbsp;&nbsp;&nbsp;
+{% endfor %}
+
+<br>
+<h2>Список збережених продуктів ({{ filtered_category }})</h2>
+<table>
+<thead>
+    <tr>
+        <th>Назва</th>
+            {% if request.user.is_superuser %}
+                <th style="text-align: center; width: 100px;">Редагувати</th>
+            {% endif %}
+        <th style="text-align: center; width: 80px;">Ціна</th>
+            {% if request.user.is_authenticated %}
+                <th style="text-align: center; width: 150px;">Додати в корзину</th>
+            {% endif %}
+        <th style="text-align: center; width: 200px;">Дата оновлення даних</th>
+    </tr>
+</thead>
+<tbody>
+    {% for item in items_list %}
+        <tr>
+            <td><a href="{% url 'products:product_details' pk=item.product.pk %}">{{ item.product.name }}</a></td>
+
+            {% if request.user.is_superuser %}
+                <td style="text-align: center;">
+                    <a href="{% url 'products:product_edit' pk=item.product.pk %}">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="{% url 'products:product_delete' pk=item.product.pk %}">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            {% endif %}
+
+            <td style="text-align: center;">{{ item.product.price }}</td>
+            {% if request.user.is_authenticated %}
+                <td style="text-align: center;">
+                    {% if item.quantity == 0 %}
+                        <a href="{% url 'cart:increase_item_in_cart_quantity' pk=item.product.pk %}">
+                            <i class="fas fa-shopping-basket full-basket"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'cart:decrease_item_in_cart_quantity' pk=item.product.pk %}">
+                            <button class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
+                        </a>
+                            {{ item.quantity }}
+                        <a href="{% url 'cart:increase_item_in_cart_quantity' pk=item.product.pk %}">
+                            <button class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+                        </a>
+                    {% endif %}
+                </td>
+            {% endif %}
+            <td style="text-align: center;">{{ item.product.update_date|date:"d.m.Y H:i" }}</td>
+        </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+<div class="pagination">
+<span class="step-links">
+    <br><br>
+    {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; перша</a>
+        <span style="margin-right: 12px;"></span>
+        <a href="?page={{ page_obj.previous_page_number }}">&laquo; попередня</a>
+        <span style="margin-right: 12px;"></span>
+    {% endif %}
+
+    <span class="current">
+        Сторінка {{ page_obj.number }} з {{ page_obj.paginator.num_pages }}.
+    </span>
+
+    {% if page_obj.has_next %}
+        <span style="margin-right: 12px;"></span>
+        <a href="?page={{ page_obj.next_page_number }}">наступна &raquo;</a>
+        <span style="margin-right: 12px;"></span>
+        <a href="?page={{ page_obj.paginator.num_pages }}">остання &raquo;</a>
+    {% endif %}
+</span>
+</div>
+
+<br><br>
+{% if request.user.is_superuser %}
+    <p><a href="{% url 'products:product_input' %}">Додати продукти в каталог</a></p>
+{% endif %}
+
+{% if request.user.is_authenticated %}
+    <p><a href="{% url 'cart:products_in_cart_list' %}">Перейти в корзину</a></p>
+{% endif %}
+
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+            <div id="message" style="background-color: orangered;">
+                <p><h1><strong>{{ message }}</strong></h1></p>
+            </div>
+        {% elif message.tags == 'success' %}
+            <div id="message" style="background-color: limegreen;">
+                <p><h1><strong>{{ message }}</strong></h1></p>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>
