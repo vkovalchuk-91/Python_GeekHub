@@ -9,7 +9,7 @@ from .serializers import CartSerializer, CartUpdateSerializer, CartDeleteSeriali
 
 
 class CartListView(APIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
     @staticmethod
     def get(request):
