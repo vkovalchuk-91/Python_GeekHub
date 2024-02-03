@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Додати продукти</title>
+    <!-- Підключення Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .btn {
+            border: none; /* Видалити границі кнопки */
+            background: none; /* Видалити фон кнопки, якщо він є */
+            cursor: pointer; /* Зробити курсор вказівником при наведенні */
+        }
+
+        form {
+            display: flex;
+            align-items: center;
+        }
+
+        .form-field {
+            margin-right: 10px;
+        }
+    </style>
+    <script>
+        // Функція для ховання повідомлення через певний час
+        function hideMessage() {
+            var message = document.getElementById('message');
+            message.style.display = 'none';
+        }
+
+        // Викликаємо функцію при завантаженні сторінки
+        window.onload = function() {
+            var message = document.getElementById('message');
+            if (message) {
+                setTimeout(hideMessage, 1500);  // Ховаємо повідомлення через 1,5 секунди (1500 мілісекунд)
+            }
+        };
+    </script>
+</head>
+<body>
+
+{% if request.user.is_authenticated %}
+    <p style="text-align: right;">
+        {% if request.user.is_superuser %}
+            <i class="fas fa-crown"></i>&nbsp;&nbsp;
+        {% endif %}
+        Користувач: {{ request.user.username }}&nbsp;&nbsp;
+        <a href="{% url 'users_accounts:logout' %}">
+            <button class="btn btn-outline-secondary ml-auto" type="button">
+                <i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Вийти
+            </button>
+        </a>
+    </p>
+{% else %}
+    <p style="text-align: right;">
+        Гість&nbsp;&nbsp;
+        <a href="{% url 'users_accounts:login' %}">
+            <button class="btn btn-outline-secondary ml-auto" type="button">
+                <i class="fas fa-sign-in-alt"></i>&nbsp;&nbsp;Увійти
+            </button>
+        </a>
+    </p>
+{% endif %}
+
+<h2>Введіть будь-яку кількість ID продуктів яку хочете додати в базу збережених</h2>
+
+<form method="post" action="{% url 'products:product_input' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <span class="form-field"></span>
+    <button type="submit">Відправити</button>
+
+    <span class="form-field"></span>
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div id="message" style="background-color: orangered;">
+                    <strong>{{ message }}</strong>
+                </div>
+            {% elif message.tags == 'success' %}
+                <div id="message" style="background-color: limegreen;">
+                    <strong>{{ message }}</strong>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+</form>
+<p><a href="{% url 'products:products_list' %}">Каталог продуктів</a></p>
+{% if request.user.is_authenticated %}
+    <p><a href="{% url 'cart:products_in_cart_list' %}">Перейти в корзину</a></p>
+{% endif %}
+
+</body>
+</html>

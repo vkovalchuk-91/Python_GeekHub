@@ -1,0 +1,132 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Корзина</title>
+    <!-- Підключення Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .btn {
+        border: none; /* Видалити границі кнопки */
+        background: none; /* Видалити фон кнопки, якщо він є */
+        cursor: pointer; /* Зробити курсор вказівником при наведенні */
+      }
+    </style>
+</head>
+<body>
+
+{% if request.user.is_authenticated %}
+    <p style="text-align: right;">
+        {% if request.user.is_superuser %}
+            <i class="fas fa-crown"></i>&nbsp;&nbsp;
+        {% endif %}
+        Користувач: {{ request.user.username }}&nbsp;&nbsp;
+        <a href="{% url 'users_accounts:logout' %}">
+            <button class="btn btn-outline-secondary ml-auto" type="button">
+                <i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Вийти
+            </button>
+        </a>
+    </p>
+{% else %}
+    <p style="text-align: right;">
+        Гість&nbsp;&nbsp;
+        <a href="{% url 'users_accounts:login' %}">
+            <button class="btn btn-outline-secondary ml-auto" type="button">
+                <i class="fas fa-sign-in-alt"></i>&nbsp;&nbsp;Увійти
+            </button>
+        </a>
+    </p>
+{% endif %}
+
+<h2>Товари в корзині</h2>
+
+<span class="empty-cart" {% if not is_empty %}style="display: none;"{% endif %}>
+    <br>
+    Корзина пуста, перейдіть до каталогу продуктів, щоб додати товари
+</span>
+
+<span class="not-empty-cart" {% if is_empty %}style="display: none;"{% endif %}>
+    <p style="text-align: right;">
+        <button class="btn btn-outline-secondary float-right clear-btn" type="button">
+            <h2><i class="fas fa-times"></i> Очистити всю корзину</h2>
+        </button>
+    </p>
+
+    <table>
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th style="text-align: center; width: 80px;">Ціна</th>
+            <th style="text-align: center; width: 80px;">Кількість</th>
+            <th style="text-align: center; width: 80px;">Вартість</th>
+            <th style="text-align: center; width: 80px;">Видалити</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cart_item in cart_items %}
+            <tr class="table-row" data-product-pk="{{ cart_item.product.pk }}">
+                <td>
+                    <a href="{% url 'products:product_details' pk=cart_item.product.pk %}">
+                        {{ cart_item.product.name }}
+                    </a>
+                </td>
+                <td class="item-price" data-product-pk="{{ cart_item.product.pk }}" style="text-align: center;">{{ cart_item.product.price }}</td>
+                <td style="text-align: center;">
+                    <button class="btn btn-outline-secondary decrease-btn" data-product-pk="{{ cart_item.product.pk }}" type="button"><i class="fas fa-minus"></i></button>
+                    <span class="quantity" data-product-pk="{{ cart_item.product.pk }}">{{ cart_item.quantity }}</span>
+                    <button class="btn btn-outline-secondary increase-btn" data-product-pk="{{ cart_item.product.pk }}" type="button"><i class="fas fa-plus"></i></button>
+                </td>
+                <td class="item-cost" data-product-pk="{{ cart_item.product.pk }}" style="text-align: center;">{{ cart_item.item_total }}</td>
+                <td style="text-align: center;">
+                    <button class="btn btn-outline-danger remove-btn" data-product-pk="{{ cart_item.product.pk }}" type="button"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td><strong>Всього вартість замовлення</strong></td>
+            <td class="total-cost" colspan="4" style="text-align: center;"><strong>{{ total }}</strong></td>
+        </tr>
+    </tfoot>
+    </table>
+
+    <p style="text-align: right;">
+        <a href="{% url 'cart:submit_order' %}">
+            <button class="btn btn-outline-primary" type="button">
+                <h2><i class="fas fa-check-circle"></i> Підтвердити замовлення</h2>
+            </button>
+        </a>
+    </p>
+</span>
+
+<br><br>
+{% if request.user.is_superuser %}
+    <p><a href="{% url 'products:product_input' %}">Додати продукти в каталог</a></p>
+{% endif %}
+<p><a href="{% url 'products:products_list' %}">Каталог продуктів</a></p>
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    var csrf_token = "{{ csrf_token }}";
+</script>
+<script src="{% static 'cart/scripts.js' %}"></script>
+</body>
+</html>
