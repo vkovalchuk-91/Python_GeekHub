@@ -6,7 +6,7 @@ from task_01.celery import celery_app as app
 @app.task(name='run_products_scraping')
 def run_scraping_task(**kwargs):
     print(f'Запущено Celery для скрапінгу даних')
-    split_ids = kwargs.get("data").split(',')
+    split_ids = kwargs.get("ids").split(',')
     exist_ids = []
     print(f"Додано в чергу на оновлення {len(split_ids)} потенційних ID продуктів")
     for product_id in split_ids:

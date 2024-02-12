@@ -44,5 +44,6 @@ class AddProductsSerializer(serializers.Serializer):
     product_ids = serializers.CharField(validators=[ProductIdsValidator.validate_alpha_numeric_comma])
 
     def create(self, validated_data):
-        run_scraping_task.delay(validated_data["product_ids"])
+        print(validated_data["product_ids"])
+        run_scraping_task.delay(ids=validated_data["product_ids"])
         return validated_data
