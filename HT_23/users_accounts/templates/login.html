@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Увійти</title>
+    <script>
+        // Функція для ховання повідомлення через певний час
+        function hideMessage() {
+            var message = document.getElementById('message');
+            message.style.display = 'none';
+        }
+
+        // Викликаємо функцію при завантаженні сторінки
+        window.onload = function() {
+            var message = document.getElementById('message');
+            if (message) {
+                setTimeout(hideMessage, 1500);  // Ховаємо повідомлення через 1,5 секунди (1500 мілісекунд)
+            }
+        };
+    </script>
+</head>
+<body>
+
+<h2>Увійти</h2>
+
+<form method="post" action="{% url 'users_accounts:login' %}">
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit">Увійти</button>
+</form>
+
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+            <div id="message" style="background-color: orangered;">
+                <p><h1><strong>{{ message }}</strong></h1></p>
+            </div>
+        {% elif message.tags == 'success' %}
+            <div id="message" style="background-color: limegreen;">
+                <p><h1><strong>{{ message }}</strong></h1></p>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>
